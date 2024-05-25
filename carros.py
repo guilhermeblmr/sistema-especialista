@@ -1,79 +1,104 @@
-# Função para recomendar os top 5 carros com base nas respostas do usuário
-def sistema_especialista():
-    print("Bem-vindo ao Sistema Especialista em Carros!")
-    print("Vou te ajudar a escolher o carro ideal para você.")
-    print("--------------------------------------------------\n")
+def perguntar(pergunta, opcoes):
+    print(pergunta)
+    for i, opcao in enumerate(opcoes, 1):
+        print(f"{i}. {opcao}")
+    escolha = int(input("Escolha uma opção (número): "))
+    return escolha
 
-    # Perguntas sobre preferências do usuário
-    estilo = input("Qual estilo de carro você prefere (esportivo, sedan, SUV, hatchback)? ").lower()
-    print("----------------------------------------------------------------------------------")
-    desempenho = input("Quão importante é o desempenho do carro para você (baixo, médio, alto)? ").lower()
-    print("----------------------------------------------------------------------------------")
-    espaco = input("Você precisa de bastante espaço interno (sim/não)? ").lower()
-    print("----------------------------------------------------------------------------------")
-    eficiencia = input("Quão importante é a eficiência de combustível para você (baixa, média, alta)? ").lower()
-    print("----------------------------------------------------------------------------------")
-    preco = input("Qual é o seu orçamento para o carro (baixo, médio, alto)? ").lower()
-    print("----------------------------------------------------------------------------------")
-    marca = input("Você tem alguma marca de carro preferida? (Digite apenas o nome da marca, deixe em branco se não tiver preferência) ").lower()
-    print("----------------------------------------------------------------------------------")
+def coletar_respostas():
+    respostas = {}
+    
+    # Pergunta sobre o estilo do carro
+    respostas['estilo'] = perguntar(
+        "Qual estilo de carro você prefere?",
+        ["Esportivo", "Sedan", "SUV", "Hatchback"]
+    )
+    
+    # Pergunta se o carro deve ser elétrico
+    respostas['eletrico'] = perguntar(
+        "Você está interessado em um carro elétrico?",
+        ["Sim", "Não"]
+    )
+    
+    # Pergunta sobre o desempenho do carro
+    respostas['desempenho'] = perguntar(
+        "Quão importante é o desempenho do carro para você?",
+        ["Baixo", "Médio", "Alto"]
+    )
+    
+    # Pergunta sobre o espaço interno (se não for SUV ou esportivo)
+    if respostas['estilo'] not in [1, 3]:  # 1: Esportivo, 3: SUV
+        respostas['espaco'] = perguntar(
+            "Você precisa de bastante espaço interno?",
+            ["Sim", "Não"]
+        )
+    
+    # Se não for elétrico, perguntar sobre eficiência de combustível
+    if respostas['eletrico'] == 2:
+        respostas['combustivel'] = perguntar(
+            "Quão importante é a eficiência de combustível para você?",
+            ["Baixa", "Média", "Alta"]
+        )
+    
+    # Pergunta sobre o orçamento
+    respostas['orcamento'] = perguntar(
+        "Qual é o seu orçamento para o carro?",
+        ["Baixo", "Médio", "Alto"]
+    )
+    
+    return respostas
 
-    # Critérios de seleção baseados nas respostas
-    recomendacoes = []
+def recomendar_carro(respostas):
+    estilo = respostas['estilo']
+    desempenho = respostas['desempenho']
+    eletrico = respostas['eletrico']
+    espaco = respostas.get('espaco', 2)  # Padrão para "Não" se não existir
+    combustivel = respostas.get('combustivel', 2)  # Padrão para "Média" se não existir
+    orcamento = respostas['orcamento']
+    
+    if eletrico == 1:
+        if estilo == 3:  # SUV elétrico
+            return "Considere um SUV elétrico como o Volvo EX30."
+        elif estilo == 2:  # Sedan elétrico
+            return "Um sedan elétrico como o JAC E-J7 seria ideal."
+        elif estilo == 4:  # Hatchback elétrico
+            return "Um hatchback elétrico como o Nissan Leaf seria uma boa escolha."
+        else:  # Estilo esportivo elétrico
+            return "Carros esportivos elétricos são raros, mas o Rimac Nevera pode ser considerado."
+    
+    # Baseado nas respostas, vamos fazer algumas recomendações simples
+    if estilo == 1:  # Esportivo
+        if desempenho == 3:  # Alto desempenho
+            return "Você deve considerar um carro esportivo de alto desempenho, como um Porsche 911."
+        else:
+            return "Você pode gostar de um carro esportivo como um Ford Mustang."
+    
+    elif estilo == 2:  # Sedan
+        if espaco == 1:  # Precisa de bastante espaço
+            return "Um sedan espaçoso como o Toyota Camry seria uma boa escolha."
+        else:
+            return "Um sedan compacto como o Honda Civic pode ser adequado."
+    
+    elif estilo == 3:  # SUV
+        if orcamento == 1:  # Baixo orçamento
+            return "Considere um SUV econômico como o Ford EcoSport."
+        else:
+            return "Um SUV como o BMW X5 pode ser uma boa escolha."
+    
+    elif estilo == 4:  # Hatchback
+        if combustivel == 3:  # Alta eficiência de combustível
+            return "Um hatchback econômico como o Toyota Prius seria ideal."
+        else:
+            return "Um hatchback versátil como o Volkswagen Golf pode ser uma boa escolha."
+    
+    return "Com base nas suas respostas, não temos uma recomendação específica, mas sugerimos consultar um especialista."
 
-    # Estilo
-    if estilo == "esportivo":
-        recomendacoes += ["Chevrolet Corvette", "Porsche 911", "Ford Mustang", "BMW M4", "Audi R8"]
-    elif estilo == "sedan":
-        recomendacoes += ["Toyota Camry", "Honda Accord", "Nissan Altima", "BMW 7 Series", "Mercedes-Benz S-Class"]
-    elif estilo == "suv":
-        recomendacoes += ["Toyota RAV4", "Honda CR-V", "Ford Escape", "Chevrolet Equinox", "Subaru Outback"]
-    elif estilo == "hatchback":
-        recomendacoes += ["Volkswagen Gol", "Chevrolet Onix", "Ford Ka", "Honda Fit", "Peugeot 208"]
-    else:
-        print("Estilo de carro não reconhecido. Escolha entre 'esportivo', 'sedan', 'SUV' ou 'hatchback'.")
+# Função principal para executar o sistema
+def main():
+    print("Bem-vindo ao sistema especialista de escolha de carro!")
+    respostas = coletar_respostas()
+    recomendacao = recomendar_carro(respostas)
+    print(f"Recomendação: {recomendacao}")
 
-    # Desempenho
-    if desempenho == "alto":
-        recomendacoes += ["Chevrolet Corvette", "Ford Mustang", "Porsche 911", "BMW M4", "Audi R8", "Mercedes-AMG GT", "BMW 7 Series", "Audi A8", "Lexus LS", "Porsche Panamera", "Jaguar XJ", "Cadillac CT6", "Maserati Quattroporte", "Bentley Flying Spur", "Rolls-Royce Ghost"]
-    elif desempenho == "médio":
-        recomendacoes += ["Toyota Camry", "Toyota Corolla", "Honda Accord", "Hyundai Elantra", "Nissan Sentra", "Honda Civic", "Volkswagen Polo", "Nissan Altima", "Toyota RAV4", "Honda CR-V", "Ford Escape", "Volkswagen Gol", "Chevrolet Onix", "Ford Ka", "Honda Fit", "Peugeot 208"]
-    elif desempenho == "baixo":
-        recomendacoes += ["Toyota Prius", "Toyota Yaris", "Honda Insight", "Kia Forte", "Ford Fiesta", "Chevrolet Sonic", "Renault Sandero", "Fiat Cronos", "Hyundai HB20S", "Toyota Etios", "Chevrolet Prisma", "Ford EcoSport", "Chevrolet Spin", "Nissan Kicks", "Honda WR-V", "Renault Captur", "Hyundai Creta", "Volkswagen T-Cross", "Ford Territory"]
-
-    # Espaço
-    if espaco == "sim":
-        recomendacoes += ["Toyota RAV4", "Honda CR-V", "Ford Escape", "Chevrolet Equinox", "Jeep Grand Cherokee", "Subaru Outback", "Hyundai Tucson", "Mazda CX-5", "Kia Sportage", "Toyota Camry", "Honda Accord", "Nissan Altima", "Hyundai Sonata", "Ford Fusion", "Chevrolet Malibu", "Subaru Legacy", "Mazda6", "Kia Optima", "Volkswagen Passat"]
-    elif espaco == "não":
-        recomendacoes += ["Chevrolet Corvette", "Porsche 911", "Ford Mustang", "BMW M4", "Audi R8", "Toyota Camry", "Honda Accord", "Nissan Altima", "Volkswagen Gol", "Chevrolet Onix", "Ford Ka", "Honda Fit", "Peugeot 208"]
-
-    # Eficiência de combustível
-    if eficiencia == "alta":
-        recomendacoes += ["Toyota Prius", "Toyota Corolla Hybrid", "Toyota Yaris Hybrid", "Honda Insight Hybrid", "Honda Civic Hatchback", "Hyundai Ioniq Hybrid", "Kia Niro", "Toyota Avalon Hybrid", "Lexus ES Hybrid", "Toyota RAV4 Hybrid", "Honda CR-V Hybrid", "Ford Escape Hybrid", "Chevrolet Equinox Diesel", "Toyota Camry Hybrid", "Honda Accord Hybrid"]
-    elif eficiencia == "média":
-        recomendacoes += ["Toyota Corolla", "Toyota Yaris", "Honda Civic", "Hyundai Elantra", "Kia Forte", "Nissan Sentra", "Ford Fiesta", "Chevrolet Sonic", "Volkswagen Polo", "Renault Sandero", "Fiat Cronos", "Hyundai HB20S", "Chevrolet Prisma", "Ford EcoSport", "Chevrolet Spin", "Nissan Kicks", "Honda WR-V", "Renault Captur", "Hyundai Creta", "Volkswagen T-Cross", "Ford Territory"]
-    elif eficiencia == "baixa":
-        recomendacoes += ["Chevrolet Corvette", "Porsche 911", "Ford Mustang", "BMW M4", "Audi R8", "BMW 7 Series", "Mercedes-Benz S-Class", "Audi A8", "Lexus LS", "Porsche Panamera", "Jaguar XJ", "Cadillac CT6", "Maserati Quattroporte", "Bentley Flying Spur", "Rolls-Royce Ghost"]
-
-    # Preço
-    if preco == "baixo":
-        recomendacoes += ["Volkswagen Gol", "Chevrolet Onix", "Ford Ka", "Fiat Argo", "Renault Kwid", "Toyota Etios", "Hyundai HB20", "Nissan March", "Honda Fit", "Peugeot 208"]
-    elif preco == "médio":
-        recomendacoes += ["Toyota Corolla", "Honda Civic", "Hyundai Elantra", "Kia Forte", "Nissan Sentra", "Ford Fiesta", "Chevrolet Sonic", "Volkswagen Polo", "Renault Sandero", "Fiat Cronos", "Hyundai HB20S", "Chevrolet Prisma", "Ford EcoSport", "Chevrolet Spin", "Nissan Kicks", "Honda WR-V", "Renault Captur", "Hyundai Creta", "Volkswagen T-Cross", "Ford Territory"]
-    elif preco == "alto":
-        recomendacoes += ["Mercedes-AMG GT", "BMW M4", "Audi R8", "BMW 7 Series", "Mercedes-Benz S-Class", "Audi A8", "Lexus LS", "Porsche Panamera", "Jaguar XJ", "Cadillac CT6", "Maserati Quattroporte", "Bentley Flying Spur", "Rolls-Royce Ghost"]
-
-    # Marca preferida
-    if marca:
-        recomendacoes = [carro for carro in recomendacoes if marca in carro.lower()]
-
-    # Remover duplicatas da lista de recomendações
-    recomendacoes = list(set(recomendacoes))
-
-    # Imprimir as top 5 recomendações
-    print("\nCom base nas suas respostas, as melhores opções de carros para você são:")
-    for i in range(min(5, len(recomendacoes))):
-        print(f"{i+1}. {recomendacoes[i]}")
-
-# Chamada da função principal
-sistema_especialista()
+if __name__ == "__main__":
+    main()
